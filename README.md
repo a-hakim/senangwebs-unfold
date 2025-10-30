@@ -4,14 +4,14 @@ An advanced, interactive JavaScript library for visualizing and editing JSON dat
 
 ## Features
 
-**Visual JSON Editing** - Interactive, flowchart-style representation of JSON data  
-**Two-Way Sync** - Real-time synchronization between visual graph and raw JSON text  
-**In-Place Editing** - Edit keys and values directly in the visual interface  
-**Pan & Zoom** - Navigate large JSON structures with smooth pan and zoom controls  
-**Zero Dependencies** - Pure vanilla JavaScript, no external libraries required  
-**Theming Support** - Built-in light and dark themes with customizable colors  
-**State Preservation** - Remembers which nodes are expanded across edits  
-**Dual Initialization** - Use declarative HTML attributes or JavaScript API  
+- **Visual JSON Editing** - Interactive, flowchart-style representation of JSON data  
+- **Two-Way Sync** - Real-time synchronization between visual graph and raw JSON text  
+- **In-Place Editing** - Edit keys and values directly in the visual interface  
+- **Pan & Zoom** - Navigate large JSON structures with smooth pan and zoom controls  
+- **Zero Dependencies** - Pure vanilla JavaScript, no external libraries required  
+- **Theming Support** - Built-in light and dark themes with customizable colors  
+- **State Preservation** - Remembers which nodes are expanded across edits  
+- **Dual Initialization** - Use declarative HTML attributes or JavaScript API  
 
 ## Installation
 
