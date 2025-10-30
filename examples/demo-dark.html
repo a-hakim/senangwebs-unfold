@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWU Demo - Dark Theme</title>
+    <link rel="stylesheet" href="../dist/swu.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>    
+    <div id="demo" class="w-full h-screen p-8 bg-neutral-800"></div>
+
+    <script src="../dist/swu.js"></script>
+    <script>
+        const demoEl = document.getElementById('demo');
+        
+        const complexData = {
+            app: {
+                name: "Advanced App",
+                settings: {
+                    display: {
+                        theme: "dark",
+                        fontSize: 14,
+                        fontFamily: "monospace"
+                    },
+                    notifications: {
+                        enabled: true,
+                        sound: false,
+                        vibrate: true
+                    }
+                },
+                users: [
+                    {
+                        id: 1,
+                        username: "john_doe",
+                        email: "john@example.com",
+                        active: true,
+                        roles: ["admin", "user"]
+                    },
+                    {
+                        id: 2,
+                        username: "jane_smith",
+                        email: "jane@example.com",
+                        active: true,
+                        roles: ["user"]
+                    }
+                ],
+                statistics: {
+                    totalUsers: 2,
+                    activeUsers: 2,
+                    lastUpdate: "2025-10-30T12:00:00Z"
+                }
+            },
+            metadata: {
+                version: "1.0.0",
+                buildDate: "2025-10-30",
+                environment: "production"
+            }
+        };
+        
+        const editor = new SWU(demoEl, {
+            canvasBackground: '#1a1a1a',
+            accentColor: '#3b82f6',
+            theme: 'dark',
+            json: complexData
+        });
+        
+        editor.on('onChange', (json) => {
+            console.log('JSON updated:', json);
+        });
+    </script>
+</body>
+</html>
