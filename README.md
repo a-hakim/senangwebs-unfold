@@ -2,6 +2,8 @@
 
 An advanced, interactive JavaScript library for visualizing and editing JSON data as an interactive flowchart-style graph.
 
+![SenangWebs Unfold Preview](https://raw.githubusercontent.com/a-hakim/senangwebs-unfold/master/swu_preview.png)
+
 ## Features
 
 - **Visual JSON Editing** - Interactive, flowchart-style representation of JSON data  
