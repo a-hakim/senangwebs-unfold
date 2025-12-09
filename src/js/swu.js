@@ -7,24 +7,24 @@
 class SWU {
   constructor(containerElement, options = {}) {
     if (!containerElement) {
-      throw new Error('Container element is required');
+      throw new Error("Container element is required");
     }
 
     this.container = containerElement;
     this.options = {
       json: options.json || options.inputJSON || {},
       textarea: options.textarea || null,
-      canvasBackground: options.canvasBackground || '#e9ecef',
-      accentColor: options.accentColor || '#3b82f6',
-      theme: options.theme || 'light',
-      ...options
+      canvasBackground: options.canvasBackground || "#e9ecef",
+      accentColor: options.accentColor || "#3b82f6",
+      theme: options.theme || "light",
+      ...options,
     };
 
     // Internal state
     this.rootNode = null;
     this.debounceTimer = null;
     this.eventListeners = {};
-    
+
     // Layout constants
     this.NODE_WIDTH = 220;
     this.NODE_HEIGHT = 70;
@@ -48,14 +48,14 @@ class SWU {
     this.setupDOM();
     this.applyTheme();
     this.setupEventListeners();
-    
+
     // Load initial JSON
-    if (typeof this.options.json === 'string') {
+    if (typeof this.options.json === "string") {
       try {
         const parsed = JSON.parse(this.options.json);
         this.render(parsed);
       } catch (e) {
-        console.error('Invalid initial JSON:', e);
+        console.error("Invalid initial JSON:", e);
         this.render({});
       }
     } else {
@@ -65,8 +65,8 @@ class SWU {
 
   setupDOM() {
     // Check if declarative setup
-    const isDeclarative = this.container.hasAttribute('data-swu');
-    
+    const isDeclarative = this.container.hasAttribute("data-swu");
+
     if (isDeclarative) {
       this.setupDeclarativeDOM();
     } else {
@@ -76,33 +76,41 @@ class SWU {
 
   setupDeclarativeDOM() {
     // Find existing elements
-    const inputWrapper = this.container.querySelector('[data-input-wrapper]');
-    const viewerContainer = this.container.querySelector('[data-swu-viewer-container]');
+    const inputWrapper = this.container.querySelector("[data-input-wrapper]");
+    const viewerContainer = this.container.querySelector(
+      "[data-swu-viewer-container]"
+    );
 
     if (!inputWrapper || !viewerContainer) {
-      throw new Error('Declarative setup requires [data-input-wrapper] and [data-swu-viewer-container]');
+      throw new Error(
+        "Declarative setup requires [data-input-wrapper] and [data-swu-viewer-container]"
+      );
     }
 
     // Read attributes
-    if (this.container.hasAttribute('data-swu-canvas-background')) {
-      this.options.canvasBackground = this.container.getAttribute('data-swu-canvas-background');
+    if (this.container.hasAttribute("data-swu-canvas-background")) {
+      this.options.canvasBackground = this.container.getAttribute(
+        "data-swu-canvas-background"
+      );
     }
-    if (this.container.hasAttribute('data-swu-accent-color')) {
-      this.options.accentColor = this.container.getAttribute('data-swu-accent-color');
+    if (this.container.hasAttribute("data-swu-accent-color")) {
+      this.options.accentColor = this.container.getAttribute(
+        "data-swu-accent-color"
+      );
     }
-    if (this.container.hasAttribute('data-swu-theme')) {
-      this.options.theme = this.container.getAttribute('data-swu-theme');
+    if (this.container.hasAttribute("data-swu-theme")) {
+      this.options.theme = this.container.getAttribute("data-swu-theme");
     }
 
     // Setup input wrapper
-    inputWrapper.className = 'swu-input-wrapper';
+    inputWrapper.className = "swu-input-wrapper";
     inputWrapper.innerHTML = `
       <textarea class="swu-textarea" placeholder="Paste your JSON here..."></textarea>
       <button class="swu-button swu-render-btn">Visualize</button>
     `;
 
     // Setup viewer
-    viewerContainer.className = 'swu-viewer-container';
+    viewerContainer.className = "swu-viewer-container";
     viewerContainer.style.backgroundColor = this.options.canvasBackground;
     viewerContainer.innerHTML = `
       <div class="swu-canvas">
@@ -112,12 +120,12 @@ class SWU {
     `;
 
     // Store references
-    this.textarea = inputWrapper.querySelector('.swu-textarea');
-    this.renderBtn = inputWrapper.querySelector('.swu-render-btn');
+    this.textarea = inputWrapper.querySelector(".swu-textarea");
+    this.renderBtn = inputWrapper.querySelector(".swu-render-btn");
     this.viewerContainer = viewerContainer;
-    this.canvas = viewerContainer.querySelector('.swu-canvas');
-    this.nodeContainer = viewerContainer.querySelector('.swu-nodes');
-    this.connectorContainer = viewerContainer.querySelector('.swu-connectors');
+    this.canvas = viewerContainer.querySelector(".swu-canvas");
+    this.nodeContainer = viewerContainer.querySelector(".swu-nodes");
+    this.connectorContainer = viewerContainer.querySelector(".swu-connectors");
   }
 
   setupProgrammaticDOM() {
@@ -138,31 +146,37 @@ class SWU {
     `;
 
     // Store references
-    this.textarea = this.options.textarea || this.container.querySelector('.swu-textarea');
-    this.renderBtn = this.container.querySelector('.swu-render-btn');
-    this.viewerContainer = this.container.querySelector('.swu-viewer-container');
-    this.canvas = this.container.querySelector('.swu-canvas');
-    this.nodeContainer = this.container.querySelector('.swu-nodes');
-    this.connectorContainer = this.container.querySelector('.swu-connectors');
+    this.textarea =
+      this.options.textarea || this.container.querySelector(".swu-textarea");
+    this.renderBtn = this.container.querySelector(".swu-render-btn");
+    this.viewerContainer = this.container.querySelector(
+      ".swu-viewer-container"
+    );
+    this.canvas = this.container.querySelector(".swu-canvas");
+    this.nodeContainer = this.container.querySelector(".swu-nodes");
+    this.connectorContainer = this.container.querySelector(".swu-connectors");
 
     // Apply background color
     this.viewerContainer.style.backgroundColor = this.options.canvasBackground;
   }
 
   applyTheme() {
-    if (this.options.theme === 'dark') {
-      this.container.setAttribute('data-swu-theme', 'dark');
+    if (this.options.theme === "dark") {
+      this.container.setAttribute("data-swu-theme", "dark");
     }
-    
+
     // Apply accent color as CSS variable
     if (this.options.accentColor) {
-      this.container.style.setProperty('--swu-accent-color', this.options.accentColor);
+      this.container.style.setProperty(
+        "--swu-accent-color",
+        this.options.accentColor
+      );
     }
   }
 
   setupEventListeners() {
     // Textarea live editing
-    this.textarea.addEventListener('input', () => {
+    this.textarea.addEventListener("input", () => {
       clearTimeout(this.debounceTimer);
       this.debounceTimer = setTimeout(() => {
         this.handleTextareaChange(false);
@@ -170,21 +184,29 @@ class SWU {
     });
 
     // Force render button
-    this.renderBtn.addEventListener('click', () => {
+    this.renderBtn.addEventListener("click", () => {
       this.handleTextareaChange(true);
     });
 
     // Pan & Zoom
-    this.viewerContainer.addEventListener('wheel', (e) => this.handleWheel(e));
-    this.viewerContainer.addEventListener('mousedown', (e) => this.handleMouseDown(e));
-    this.viewerContainer.addEventListener('mouseup', () => this.handleMouseUp());
-    this.viewerContainer.addEventListener('mouseleave', () => this.handleMouseUp());
-    this.viewerContainer.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+    this.viewerContainer.addEventListener("wheel", (e) => this.handleWheel(e));
+    this.viewerContainer.addEventListener("mousedown", (e) =>
+      this.handleMouseDown(e)
+    );
+    this.viewerContainer.addEventListener("mouseup", () =>
+      this.handleMouseUp()
+    );
+    this.viewerContainer.addEventListener("mouseleave", () =>
+      this.handleMouseUp()
+    );
+    this.viewerContainer.addEventListener("mousemove", (e) =>
+      this.handleMouseMove(e)
+    );
   }
 
   handleTextareaChange(force = false) {
     const expandedPaths = new Set();
-    
+
     // Preserve expanded state
     if (this.rootNode && !force) {
       this.collectExpandedPaths(this.rootNode, expandedPaths);
@@ -192,26 +214,26 @@ class SWU {
 
     try {
       const data = JSON.parse(this.textarea.value);
-      this.rootNode = this.createNode('root', data, null, expandedPaths);
-      
+      this.rootNode = this.createNode("root", data, null, expandedPaths);
+
       if (force) {
         this.centerView();
       }
-      
+
       this.updateTransform();
       this.layoutAndDraw();
-      
-      this.textarea.classList.remove('invalid');
-      this.textarea.classList.add('valid');
-      
-      this.emit('onChange', this.getJson());
+
+      this.textarea.classList.remove("invalid");
+      this.textarea.classList.add("valid");
+
+      this.emit("onChange", this.getJson());
     } catch (e) {
       if (force) {
-        alert('Invalid JSON! Please check the syntax.');
+        alert("Invalid JSON! Please check the syntax.");
       }
-      this.textarea.classList.remove('valid');
-      this.textarea.classList.add('invalid');
-      this.emit('onError', e);
+      this.textarea.classList.remove("valid");
+      this.textarea.classList.add("invalid");
+      this.emit("onError", e);
     }
   }
 
@@ -220,7 +242,7 @@ class SWU {
       paths.add(this.getNodePath(node));
     }
     if (node.children) {
-      node.children.forEach(child => this.collectExpandedPaths(child, paths));
+      node.children.forEach((child) => this.collectExpandedPaths(child, paths));
     }
   }
 
@@ -231,14 +253,15 @@ class SWU {
       path.unshift(current.key);
       current = current.parent;
     }
-    return path.join('.');
+    return path.join(".");
   }
 
   createNode(key, value, parent = null, expandedPaths = new Set()) {
-    const isExpandable = typeof value === 'object' && 
-                        value !== null && 
-                        Object.keys(value).length > 0;
-    
+    const isExpandable =
+      typeof value === "object" &&
+      value !== null &&
+      Object.keys(value).length > 0;
+
     const node = {
       key,
       value,
@@ -268,23 +291,27 @@ class SWU {
 
   toggleNode(node) {
     if (!node.isExpandable) return;
-    
+
     node.isExpanded = !node.isExpanded;
-    
+
     if (node.isExpanded && node.children.length === 0) {
       node.children = Object.keys(node.value).map((key) =>
         this.createNode(key, node.value[key], node)
       );
     }
-    
+
     this.layoutAndDraw();
   }
 
   layoutAndDraw() {
     if (!this.rootNode) return;
-    
+
     this.calculateSubtreeHeights(this.rootNode);
-    this.positionNodes(this.rootNode, this.CANVAS_CENTER_X, this.CANVAS_CENTER_Y);
+    this.positionNodes(
+      this.rootNode,
+      this.CANVAS_CENTER_X,
+      this.CANVAS_CENTER_Y
+    );
     this.draw();
   }
 
@@ -293,22 +320,23 @@ class SWU {
       node.subtreeHeight = this.NODE_HEIGHT;
       return;
     }
-    
+
     let totalHeight = 0;
     node.children.forEach((child) => {
       this.calculateSubtreeHeights(child);
       totalHeight += child.subtreeHeight;
     });
-    
-    node.subtreeHeight = totalHeight + (node.children.length - 1) * this.V_SPACING;
+
+    node.subtreeHeight =
+      totalHeight + (node.children.length - 1) * this.V_SPACING;
   }
 
   positionNodes(node, x, y) {
     node.x = x;
     node.y = y;
-    
+
     if (!node.isExpanded || node.children.length === 0) return;
-    
+
     let currentY = y - node.subtreeHeight / 2;
     node.children.forEach((child) => {
       this.positionNodes(
@@ -323,14 +351,14 @@ class SWU {
   draw() {
     const fragment = document.createDocumentFragment();
     const connectors = [];
-    
+
     const traverse = (node) => {
       if (!node.el) {
         node.el = this.createNodeElement(node);
       }
       this.updateNodeElement(node);
       fragment.appendChild(node.el);
-      
+
       if (node.isExpanded) {
         node.children.forEach((child) => {
           connectors.push(this.drawConnector(node, child));
@@ -338,28 +366,30 @@ class SWU {
         });
       }
     };
-    
+
     if (this.rootNode) traverse(this.rootNode);
-    
-    this.nodeContainer.innerHTML = '';
+
+    this.nodeContainer.innerHTML = "";
     this.nodeContainer.appendChild(fragment);
-    
-    this.connectorContainer.innerHTML = '';
+
+    this.connectorContainer.innerHTML = "";
     connectors.forEach((c) => this.connectorContainer.appendChild(c));
   }
 
   updateNodeElement(node) {
-    node.el.style.transform = `translate(${node.x}px, ${node.y - this.NODE_HEIGHT / 2}px)`;
+    node.el.style.transform = `translate(${node.x}px, ${
+      node.y - this.NODE_HEIGHT / 2
+    }px)`;
   }
 
   createNodeElement(node) {
-    const el = document.createElement('div');
+    const el = document.createElement("div");
     el.id = node.id;
-    el.className = 'swu-node';
-    if (node.isExpandable) el.classList.add('expandable');
+    el.className = "swu-node";
+    if (node.isExpandable) el.classList.add("expandable");
 
-    const keyEl = document.createElement('div');
-    const valueEl = document.createElement('div');
+    const keyEl = document.createElement("div");
+    const valueEl = document.createElement("div");
 
     this.renderKey(keyEl, node);
     this.renderValue(valueEl, node);
@@ -369,21 +399,21 @@ class SWU {
 
     // Expandable click
     if (node.isExpandable) {
-      el.addEventListener('click', (e) => {
+      el.addEventListener("click", (e) => {
         if (e.target === el || e.target === valueEl) {
           this.toggleNode(node);
         }
       });
     } else {
       // Value editing
-      valueEl.addEventListener('dblclick', () => {
+      valueEl.addEventListener("dblclick", () => {
         this.enterEditMode(valueEl, node);
       });
     }
 
     // Key editing (only for object properties, not array indices)
     if (node.parent && !Array.isArray(node.parent.value)) {
-      keyEl.addEventListener('dblclick', () => {
+      keyEl.addEventListener("dblclick", () => {
         this.enterKeyEditMode(keyEl, node);
       });
     }
@@ -392,33 +422,33 @@ class SWU {
   }
 
   renderKey(keyEl, node) {
-    keyEl.innerHTML = '';
-    keyEl.className = 'swu-key';
-    keyEl.textContent = node.key === 'root' ? 'JSON Root' : node.key;
-    
+    keyEl.innerHTML = "";
+    keyEl.className = "swu-key";
+    keyEl.textContent = node.key === "root" ? "JSON Root" : node.key;
+
     if (node.parent && !Array.isArray(node.parent.value)) {
-      keyEl.classList.add('editable');
-      keyEl.title = 'Double-click to edit key';
+      keyEl.classList.add("editable");
+      keyEl.title = "Double-click to edit key";
     }
   }
 
   renderValue(valueEl, node) {
-    valueEl.innerHTML = '';
-    valueEl.className = 'swu-value';
+    valueEl.innerHTML = "";
+    valueEl.className = "swu-value";
     const value = node.value;
-    
+
     if (node.isExpandable) {
       const typeText = Array.isArray(value)
         ? `Array[${value.length}]`
-        : '{...} Object';
+        : "{...} Object";
       valueEl.innerHTML = `${typeText} <span class="unfold-hint">(click to unfold)</span>`;
     } else {
-      valueEl.classList.add('editable');
-      valueEl.title = 'Double-click to edit value';
+      valueEl.classList.add("editable");
+      valueEl.title = "Double-click to edit value";
       valueEl.textContent = JSON.stringify(value);
-      
+
       if (value === null) {
-        valueEl.classList.add('swu-value-null');
+        valueEl.classList.add("swu-value-null");
       } else {
         valueEl.classList.add(`swu-value-${typeof value}`);
       }
@@ -426,10 +456,10 @@ class SWU {
   }
 
   enterEditMode(valueEl, node) {
-    const input = document.createElement('input');
-    input.className = 'swu-edit-input';
+    const input = document.createElement("input");
+    input.className = "swu-edit-input";
     input.value = JSON.stringify(node.value);
-    
+
     const save = () => {
       let newValue;
       try {
@@ -438,24 +468,24 @@ class SWU {
         // If not valid JSON, treat as string
         newValue = input.value;
       }
-      
+
       node.value = newValue;
       node.parent.value[node.key] = newValue;
       this.renderValue(valueEl, node);
       this.updateRawJson();
     };
-    
-    input.addEventListener('blur', save);
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
+
+    input.addEventListener("blur", save);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
         input.blur();
       }
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         this.renderValue(valueEl, node);
       }
     });
-    
-    valueEl.innerHTML = '';
+
+    valueEl.innerHTML = "";
     valueEl.appendChild(input);
     input.focus();
     input.select();
@@ -463,14 +493,18 @@ class SWU {
 
   enterKeyEditMode(keyEl, node) {
     const oldKey = node.key;
-    const input = document.createElement('input');
-    input.className = 'swu-edit-input';
+    const input = document.createElement("input");
+    input.className = "swu-edit-input";
     input.value = oldKey;
-    
+
     const save = () => {
       const newKey = input.value.trim();
-      
-      if (newKey && newKey !== oldKey && !node.parent.value.hasOwnProperty(newKey)) {
+
+      if (
+        newKey &&
+        newKey !== oldKey &&
+        !node.parent.value.hasOwnProperty(newKey)
+      ) {
         const parentNode = node.parent;
         const parentObject = parentNode.value;
         const newParentObject = {};
@@ -497,21 +531,21 @@ class SWU {
         node.key = newKey;
         this.updateRawJson();
       }
-      
+
       this.renderKey(keyEl, node);
     };
-    
-    input.addEventListener('blur', save);
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
+
+    input.addEventListener("blur", save);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
         input.blur();
       }
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         this.renderKey(keyEl, node);
       }
     });
-    
-    keyEl.innerHTML = '';
+
+    keyEl.innerHTML = "";
     keyEl.appendChild(input);
     input.focus();
     input.select();
@@ -519,59 +553,59 @@ class SWU {
 
   updateRawJson() {
     this.textarea.value = JSON.stringify(this.rootNode.value, null, 2);
-    this.textarea.classList.remove('invalid');
-    this.textarea.classList.add('valid');
-    this.emit('onChange', this.getJson());
+    this.textarea.classList.remove("invalid");
+    this.textarea.classList.add("valid");
+    this.emit("onChange", this.getJson());
   }
 
   drawConnector(fromNode, toNode) {
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     const fromX = fromNode.x + this.NODE_WIDTH;
     const fromY = fromNode.y;
     const toX = toNode.x;
     const toY = toNode.y;
-    
+
     const d = `M ${fromX} ${fromY} C ${fromX + this.H_SPACING / 2} ${fromY}, ${
       toX - this.H_SPACING / 2
     } ${toY}, ${toX} ${toY}`;
-    
-    path.setAttribute('d', d);
-    path.setAttribute('stroke', 'var(--swu-line-color)');
-    path.setAttribute('stroke-width', '2');
-    path.setAttribute('fill', 'none');
-    
+
+    path.setAttribute("d", d);
+    path.setAttribute("stroke", "var(--swu-line-color)");
+    path.setAttribute("stroke-width", "2");
+    path.setAttribute("fill", "none");
+
     return path;
   }
 
   handleWheel(e) {
     e.preventDefault();
-    
+
     const rect = this.viewerContainer.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
-    
+
     const delta = e.deltaY > 0 ? 0.9 : 1.1;
     const newScale = Math.max(0.2, Math.min(2.5, this.scale * delta));
-    
+
     this.panX = mouseX - (mouseX - this.panX) * (newScale / this.scale);
     this.panY = mouseY - (mouseY - this.panY) * (newScale / this.scale);
     this.scale = newScale;
-    
+
     this.updateTransform();
   }
 
   handleMouseDown(e) {
-    if (e.target.closest('.swu-node')) return;
-    
+    if (e.target.closest(".swu-node")) return;
+
     this.isDragging = true;
     this.startDragX = e.clientX - this.panX;
     this.startDragY = e.clientY - this.panY;
-    this.viewerContainer.style.cursor = 'grabbing';
+    this.viewerContainer.style.cursor = "grabbing";
   }
 
   handleMouseUp() {
     this.isDragging = false;
-    this.viewerContainer.style.cursor = 'grab';
+    this.viewerContainer.style.cursor = "grab";
   }
 
   handleMouseMove(e) {
@@ -587,13 +621,15 @@ class SWU {
   }
 
   centerView() {
-    this.panX = this.viewerContainer.clientWidth / 2 - this.CANVAS_CENTER_X * this.scale;
-    this.panY = this.viewerContainer.clientHeight / 2 - this.CANVAS_CENTER_Y * this.scale;
+    this.panX =
+      this.viewerContainer.clientWidth / 2 - this.CANVAS_CENTER_X * this.scale;
+    this.panY =
+      this.viewerContainer.clientHeight / 2 - this.CANVAS_CENTER_Y * this.scale;
   }
 
   // Public API Methods
   render(json) {
-    if (typeof json === 'string') {
+    if (typeof json === "string") {
       this.textarea.value = json;
       this.handleTextareaChange(true);
     } else {
@@ -611,15 +647,15 @@ class SWU {
 
   destroy() {
     // Remove event listeners
-    this.viewerContainer.removeEventListener('wheel', this.handleWheel);
-    this.viewerContainer.removeEventListener('mousedown', this.handleMouseDown);
-    this.viewerContainer.removeEventListener('mouseup', this.handleMouseUp);
-    this.viewerContainer.removeEventListener('mouseleave', this.handleMouseUp);
-    this.viewerContainer.removeEventListener('mousemove', this.handleMouseMove);
-    
+    this.viewerContainer.removeEventListener("wheel", this.handleWheel);
+    this.viewerContainer.removeEventListener("mousedown", this.handleMouseDown);
+    this.viewerContainer.removeEventListener("mouseup", this.handleMouseUp);
+    this.viewerContainer.removeEventListener("mouseleave", this.handleMouseUp);
+    this.viewerContainer.removeEventListener("mousemove", this.handleMouseMove);
+
     // Clear content
-    this.container.innerHTML = '';
-    
+    this.container.innerHTML = "";
+
     // Clear references
     this.rootNode = null;
     this.eventListeners = {};
@@ -635,24 +671,24 @@ class SWU {
 
   emit(event, data) {
     if (this.eventListeners[event]) {
-      this.eventListeners[event].forEach(callback => callback(data));
+      this.eventListeners[event].forEach((callback) => callback(data));
     }
   }
 }
 
 // Auto-initialize declarative instances
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('[data-swu]').forEach(el => {
-      if (!el._swuInstance) {
-        el._swuInstance = new SWU(el);
+if (typeof document !== "undefined") {
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll("[data-swu]").forEach((el) => {
+      if (!el.SWU) {
+        el.SWU = new SWU(el);
       }
     });
   });
 }
 
 // Export for different module systems
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = SWU;
 }
 
