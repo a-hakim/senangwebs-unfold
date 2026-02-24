@@ -50,6 +50,7 @@ npm install senangwebs-unfold
   data-swu-canvas-background="#ededed"
   data-swu-accent-color="#ff6600"
   data-swu-theme="light"
+  data-swu-direction="horizontal"
 >
   <div data-input-wrapper></div>
   <div data-swu-viewer-container></div>
@@ -98,6 +99,7 @@ new SWU(containerElement, options);
   - `canvasBackground` (String) - Background color for the canvas (default: `#e9ecef`)
   - `accentColor` (String) - Accent color for UI elements (default: `#3b82f6`)
   - `theme` (String) - Theme: `'light'` or `'dark'` (default: `'light'`)
+  - `direction` (String) - Layout direction: `'horizontal'` (left-to-right) or `'vertical'` (top-to-bottom) (default: `'horizontal'`)
 
 ### Public Methods
 
@@ -179,6 +181,7 @@ See the included demo files:
 - `demo-declarative.html` - Declarative HTML initialization
 - `demo-api.html` - JavaScript API initialization
 - `demo-dark.html` - Dark theme example
+- `demo-vertical.html` - Vertical direction (top-to-bottom) example
 
 ## Building from Source
 

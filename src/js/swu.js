@@ -17,6 +17,7 @@ class SWU {
       canvasBackground: options.canvasBackground || "#e9ecef",
       accentColor: options.accentColor || "#3b82f6",
       theme: options.theme || "light",
+      direction: options.direction || "horizontal",
       ...options,
     };
 
@@ -101,6 +102,9 @@ class SWU {
     if (this.container.hasAttribute("data-swu-theme")) {
       this.options.theme = this.container.getAttribute("data-swu-theme");
     }
+    if (this.container.hasAttribute("data-swu-direction")) {
+      this.options.direction = this.container.getAttribute("data-swu-direction");
+    }
 
     // Setup input wrapper
     inputWrapper.className = "swu-input-wrapper";
@@ -163,6 +167,11 @@ class SWU {
   applyTheme() {
     if (this.options.theme === "dark") {
       this.container.setAttribute("data-swu-theme", "dark");
+    }
+
+    // Apply direction attribute
+    if (this.options.direction) {
+      this.container.setAttribute("data-swu-direction", this.options.direction);
     }
 
     // Apply accent color as CSS variable
@@ -273,6 +282,7 @@ class SWU {
       children: [],
       el: null,
       subtreeHeight: this.NODE_HEIGHT,
+      subtreeWidth: this.NODE_WIDTH,
       isExpandable: isExpandable,
     };
 
@@ -306,7 +316,7 @@ class SWU {
   layoutAndDraw() {
     if (!this.rootNode) return;
 
-    this.calculateSubtreeHeights(this.rootNode);
+    this.calculateSubtreeSizes(this.rootNode);
     this.positionNodes(
       this.rootNode,
       this.CANVAS_CENTER_X,
@@ -315,20 +325,25 @@ class SWU {
     this.draw();
   }
 
-  calculateSubtreeHeights(node) {
+  calculateSubtreeSizes(node) {
     if (!node.isExpanded || node.children.length === 0) {
       node.subtreeHeight = this.NODE_HEIGHT;
+      node.subtreeWidth = this.NODE_WIDTH;
       return;
     }
 
     let totalHeight = 0;
+    let totalWidth = 0;
     node.children.forEach((child) => {
-      this.calculateSubtreeHeights(child);
+      this.calculateSubtreeSizes(child);
       totalHeight += child.subtreeHeight;
+      totalWidth += child.subtreeWidth;
     });
 
     node.subtreeHeight =
       totalHeight + (node.children.length - 1) * this.V_SPACING;
+    node.subtreeWidth =
+      totalWidth + (node.children.length - 1) * this.H_SPACING;
   }
 
   positionNodes(node, x, y) {
@@ -337,15 +352,30 @@ class SWU {
 
     if (!node.isExpanded || node.children.length === 0) return;
 
-    let currentY = y - node.subtreeHeight / 2;
-    node.children.forEach((child) => {
-      this.positionNodes(
-        child,
-        x + this.NODE_WIDTH + this.H_SPACING,
-        currentY + child.subtreeHeight / 2
-      );
-      currentY += child.subtreeHeight + this.V_SPACING;
-    });
+    if (this.options.direction === "vertical") {
+      // Vertical: children spread horizontally below the parent
+      const vGap = this.V_SPACING * 3;
+      let currentX = x - node.subtreeWidth / 2;
+      node.children.forEach((child) => {
+        this.positionNodes(
+          child,
+          currentX + child.subtreeWidth / 2,
+          y + this.NODE_HEIGHT + vGap
+        );
+        currentX += child.subtreeWidth + this.H_SPACING;
+      });
+    } else {
+      // Horizontal (default): children stacked vertically to the right
+      let currentY = y - node.subtreeHeight / 2;
+      node.children.forEach((child) => {
+        this.positionNodes(
+          child,
+          x + this.NODE_WIDTH + this.H_SPACING,
+          currentY + child.subtreeHeight / 2
+        );
+        currentY += child.subtreeHeight + this.V_SPACING;
+      });
+    }
   }
 
   draw() {
@@ -560,14 +590,39 @@ class SWU {
 
   drawConnector(fromNode, toNode) {
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    const fromX = fromNode.x + this.NODE_WIDTH;
-    const fromY = fromNode.y;
-    const toX = toNode.x;
-    const toY = toNode.y;
+    let d;
 
-    const d = `M ${fromX} ${fromY} C ${fromX + this.H_SPACING / 2} ${fromY}, ${
-      toX - this.H_SPACING / 2
-    } ${toY}, ${toX} ${toY}`;
+    if (this.options.direction === "vertical") {
+      // Vertical: org-chart style connector with rounded corners
+      // Path: down from parent → horizontal to align with child → down into child
+      const fromX = fromNode.x + this.NODE_WIDTH / 2;
+      const fromY = fromNode.y + this.NODE_HEIGHT / 2;
+      const toX = toNode.x + this.NODE_WIDTH / 2;
+      const toY = toNode.y - this.NODE_HEIGHT / 2;
+      const midY = (fromY + toY) / 2;
+      const r = Math.min(10, Math.abs(toX - fromX) / 2, Math.abs(midY - fromY), Math.abs(toY - midY));
+
+      if (Math.abs(fromX - toX) < 1) {
+        // Straight vertical line (child directly below parent)
+        d = `M ${fromX} ${fromY} L ${fromX} ${toY}`;
+      } else {
+        const dir = toX > fromX ? 1 : -1;
+        d = `M ${fromX} ${fromY}`
+          + ` L ${fromX} ${midY - r}`
+          + ` Q ${fromX} ${midY}, ${fromX + dir * r} ${midY}`
+          + ` L ${toX - dir * r} ${midY}`
+          + ` Q ${toX} ${midY}, ${toX} ${midY + r}`
+          + ` L ${toX} ${toY}`;
+      }
+    } else {
+      // Horizontal (default): connector from right-center of parent to left of child
+      const fromX = fromNode.x + this.NODE_WIDTH;
+      const fromY = fromNode.y;
+      const toX = toNode.x;
+      const toY = toNode.y;
+
+      d = `M ${fromX} ${fromY} C ${fromX + this.H_SPACING / 2} ${fromY}, ${toX - this.H_SPACING / 2} ${toY}, ${toX} ${toY}`;
+    }
 
     path.setAttribute("d", d);
     path.setAttribute("stroke", "var(--swu-line-color)");

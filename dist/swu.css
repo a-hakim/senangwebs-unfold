@@ -139,6 +139,11 @@
   border-left: 5px solid var(--swu-accent-color);
 }
 
+[data-swu-direction="vertical"] .swu-node.expandable {
+  border-left: 1px solid var(--swu-node-border);
+  border-top: 5px solid var(--swu-accent-color);
+}
+
 .swu-node.expandable:hover {
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);

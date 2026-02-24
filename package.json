@@ -1,6 +1,6 @@
 {
   "name": "senangwebs-unfold",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "An advanced, interactive JavaScript library for visualizing and editing JSON data.",
   "main": "dist/swu.js",
   "scripts": {

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SWU Demo - Vertical Direction</title>
+    <link rel="stylesheet" href="../dist/swu.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <div
+      class="flex p-8 gap-4 h-screen"
+      id="demo"
+      data-swu
+      data-swu-canvas-background="#ededed"
+      data-swu-accent-color="#ff6600"
+      data-swu-theme="light"
+      data-swu-direction="vertical"
+    >
+      <div data-input-wrapper>
+        <!-- Textarea will be auto-generated here -->
+      </div>
+      <div data-swu-viewer-container>
+        <!-- Canvas will be auto-generated here -->
+      </div>
+    </div>
+
+    <script src="../dist/swu.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const instance = document.getElementById("demo").SWU;
+
+        const sampleData = {
+          project: "SenangWebs Unfold",
+          version: 2.0,
+          status: "In Development",
+          config: {
+            theme: "Flow",
+            editable: true,
+            defaultView: "Graph",
+          },
+          components: [
+            { name: "Renderer", type: "Canvas" },
+            { name: "Parser", type: "JavaScript" },
+          ],
+          features: {
+            visualization: true,
+            editing: true,
+            panZoom: true,
+            statePreservation: true,
+          },
+          active: true,
+          metadata: null,
+        };
+
+        instance.render(sampleData);
+
+        instance.on("onChange", (json) => {
+          console.log("JSON changed:", json);
+        });
+      });
+    </script>
+  </body>
+</html>
