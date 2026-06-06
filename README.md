@@ -16,6 +16,7 @@ An advanced, interactive JavaScript library for visualizing and editing JSON dat
 - **Theming Support** - Built-in light and dark themes with customizable colors
 - **State Preservation** - Remembers which nodes are expanded across edits
 - **Dual Initialization** - Use declarative HTML attributes or JavaScript API
+- **Clean Teardown** - Removes DOM and library event listeners when an instance is destroyed
 
 ## Installation
 
@@ -121,13 +122,30 @@ const currentData = editor.getJson();
 
 #### `.destroy()`
 
-Cleans up all DOM elements and event listeners.
+Cleans up DOM elements, registered event listeners, and pending input updates. Calling it more than once is safe.
 
 ```javascript
 editor.destroy();
 ```
 
 ### Events
+
+Subscribe with `.on(event, callback)`. It returns an unsubscribe function:
+
+```javascript
+const unsubscribe = editor.on("onChange", (jsonData) => {
+  console.log("Data changed:", jsonData);
+});
+
+unsubscribe();
+```
+
+You can also remove a specific callback, or all callbacks for an event, with `.off()`:
+
+```javascript
+editor.off("onChange", callback);
+editor.off("onChange");
+```
 
 #### `onChange`
 
@@ -194,6 +212,9 @@ npm run build
 
 # Build for development with watch mode
 npm run dev
+
+# Run the dependency-free lifecycle tests
+npm test
 ```
 
 ## Contributing

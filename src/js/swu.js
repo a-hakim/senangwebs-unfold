@@ -25,6 +25,8 @@ class SWU {
     this.rootNode = null;
     this.debounceTimer = null;
     this.eventListeners = {};
+    this.domEventListeners = [];
+    this.isDestroyed = false;
 
     // Layout constants
     this.NODE_WIDTH = 220;
@@ -185,7 +187,7 @@ class SWU {
 
   setupEventListeners() {
     // Textarea live editing
-    this.textarea.addEventListener("input", () => {
+    this.addDOMEventListener(this.textarea, "input", () => {
       clearTimeout(this.debounceTimer);
       this.debounceTimer = setTimeout(() => {
         this.handleTextareaChange(false);
@@ -193,24 +195,34 @@ class SWU {
     });
 
     // Force render button
-    this.renderBtn.addEventListener("click", () => {
+    this.addDOMEventListener(this.renderBtn, "click", () => {
       this.handleTextareaChange(true);
     });
 
     // Pan & Zoom
-    this.viewerContainer.addEventListener("wheel", (e) => this.handleWheel(e));
-    this.viewerContainer.addEventListener("mousedown", (e) =>
+    this.addDOMEventListener(
+      this.viewerContainer,
+      "wheel",
+      (e) => this.handleWheel(e),
+      { passive: false }
+    );
+    this.addDOMEventListener(this.viewerContainer, "mousedown", (e) =>
       this.handleMouseDown(e)
     );
-    this.viewerContainer.addEventListener("mouseup", () =>
+    this.addDOMEventListener(this.viewerContainer, "mouseup", () =>
       this.handleMouseUp()
     );
-    this.viewerContainer.addEventListener("mouseleave", () =>
+    this.addDOMEventListener(this.viewerContainer, "mouseleave", () =>
       this.handleMouseUp()
     );
-    this.viewerContainer.addEventListener("mousemove", (e) =>
+    this.addDOMEventListener(this.viewerContainer, "mousemove", (e) =>
       this.handleMouseMove(e)
     );
+  }
+
+  addDOMEventListener(target, event, handler, options) {
+    target.addEventListener(event, handler, options);
+    this.domEventListeners.push({ target, event, handler, options });
   }
 
   handleTextareaChange(force = false) {
@@ -701,12 +713,17 @@ class SWU {
   }
 
   destroy() {
-    // Remove event listeners
-    this.viewerContainer.removeEventListener("wheel", this.handleWheel);
-    this.viewerContainer.removeEventListener("mousedown", this.handleMouseDown);
-    this.viewerContainer.removeEventListener("mouseup", this.handleMouseUp);
-    this.viewerContainer.removeEventListener("mouseleave", this.handleMouseUp);
-    this.viewerContainer.removeEventListener("mousemove", this.handleMouseMove);
+    if (this.isDestroyed) return;
+
+    clearTimeout(this.debounceTimer);
+    this.debounceTimer = null;
+
+    this.domEventListeners.forEach(
+      ({ target, event, handler, options }) => {
+        target.removeEventListener(event, handler, options);
+      }
+    );
+    this.domEventListeners = [];
 
     // Clear content
     this.container.innerHTML = "";
@@ -714,6 +731,7 @@ class SWU {
     // Clear references
     this.rootNode = null;
     this.eventListeners = {};
+    this.isDestroyed = true;
   }
 
   // Event emitter
@@ -722,11 +740,30 @@ class SWU {
       this.eventListeners[event] = [];
     }
     this.eventListeners[event].push(callback);
+
+    return () => this.off(event, callback);
+  }
+
+  off(event, callback) {
+    if (!this.eventListeners[event]) return;
+
+    if (!callback) {
+      delete this.eventListeners[event];
+      return;
+    }
+
+    this.eventListeners[event] = this.eventListeners[event].filter(
+      (listener) => listener !== callback
+    );
+
+    if (this.eventListeners[event].length === 0) {
+      delete this.eventListeners[event];
+    }
   }
 
   emit(event, data) {
     if (this.eventListeners[event]) {
-      this.eventListeners[event].forEach((callback) => callback(data));
+      [...this.eventListeners[event]].forEach((callback) => callback(data));
     }
   }
 }
