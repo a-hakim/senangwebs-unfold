@@ -4,8 +4,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   entry: {
-    swu: './src/js/swu.js',
-    styles: './src/css/swu.css'
+    swu: './src/js/swu.js'
   },
   output: {
     filename: '[name].js',

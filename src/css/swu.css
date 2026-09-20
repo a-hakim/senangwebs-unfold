@@ -88,6 +88,7 @@
   border-radius: 8px;
   background-color: #e9ecef;
   cursor: grab;
+  touch-action: none;
 }
 
 [data-swu-theme="dark"] .swu-viewer-container {
@@ -113,6 +114,7 @@
   height: 100%;
   z-index: 1;
   pointer-events: none;
+  overflow: visible;
 }
 
 .swu-nodes {
@@ -196,7 +198,10 @@
   color: var(--swu-boolean-color);
 }
 
-.swu-value-null {
+.swu-value-null,
+.swu-value-object,
+.swu-value-array,
+.swu-value-undefined {
   color: var(--swu-null-color);
 }
 
@@ -215,4 +220,165 @@
 
 .swu-edit-input:focus {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.swu-node:focus-visible {
+  outline: 2px solid var(--swu-accent-color);
+  outline-offset: 2px;
+}
+
+/* Toolbar */
+.swu-toolbar {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background-color: var(--swu-node-bg);
+  border: 1px solid var(--swu-node-border);
+  border-radius: 8px;
+  box-shadow: var(--swu-node-shadow);
+}
+
+.swu-tool-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--swu-text-color);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* SenangStart Icons (ss-icon web component) */
+.swu-tool-btn ss-icon,
+.swu-action ss-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.swu-action ss-icon {
+  font-size: 11px;
+}
+
+/* Fallback glyph: visible only while ss-icon is not defined (script not
+   loaded), or when icons are disabled via the `icons: false` option */
+.swu-icon-fallback {
+  display: none;
+}
+
+ss-icon:not(:defined) ~ .swu-icon-fallback,
+[data-swu-no-icons] .swu-icon-fallback {
+  display: inline;
+}
+
+.swu-tool-btn:hover {
+  background-color: var(--swu-accent-color);
+  color: #fff;
+}
+
+.swu-toolbar-sep {
+  width: 1px;
+  height: 18px;
+  background-color: var(--swu-node-border);
+  margin: 0 2px;
+}
+
+.swu-search {
+  width: 130px;
+  padding: 4px 8px;
+  border: 1px solid var(--swu-node-border);
+  border-radius: 5px;
+  font-size: 0.8rem;
+  background-color: var(--swu-node-bg);
+  color: var(--swu-text-color);
+  outline: none;
+}
+
+.swu-search:focus {
+  border-color: var(--swu-accent-color);
+}
+
+/* Node hover actions (add / delete) */
+.swu-node-actions {
+  position: absolute;
+  top: -10px;
+  right: 6px;
+  display: none;
+  gap: 4px;
+}
+
+.swu-node:hover .swu-node-actions,
+.swu-node:focus-within .swu-node-actions {
+  display: flex;
+}
+
+.swu-action {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--swu-node-border);
+  border-radius: 50%;
+  background-color: var(--swu-node-bg);
+  color: var(--swu-text-color);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.swu-action:hover {
+  background-color: var(--swu-accent-color);
+  border-color: var(--swu-accent-color);
+  color: #fff;
+}
+
+.swu-action-delete:hover {
+  background-color: #dc2626;
+  border-color: #dc2626;
+}
+
+/* Search match highlight */
+.swu-node.swu-highlight {
+  border-color: var(--swu-accent-color);
+  box-shadow: 0 0 0 3px var(--swu-accent-color);
+}
+
+/* Read-only mode */
+[data-swu-readonly] .swu-node-actions {
+  display: none;
+}
+
+[data-swu-readonly] .swu-value.editable,
+[data-swu-readonly] .swu-key.editable {
+  cursor: default;
+}
+
+[data-swu-readonly] .swu-value.editable:hover,
+[data-swu-readonly] .swu-key.editable:hover {
+  background-color: transparent;
+}
+
+.swu-error-text {
+  color: #dc2626;
+  font-size: 0.85rem;
+  font-family: "Courier New", Courier, monospace;
+  word-break: break-word;
+}
+
+[data-swu-theme="dark"] .swu-error-text {
+  color: #f87171;
 }
